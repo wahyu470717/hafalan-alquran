@@ -1,93 +1,297 @@
-# monitoring-hafalan
+# Database Migration System
 
+A simple yet powerful database migration system for Node.js applications using PostgreSQL. This system provides automatic migration management with TypeScript support.
 
+## Features
 
-## Getting started
+- Automatic migration execution on server startup
+- Migration file generation with templates
+- Migration status tracking
+- Rollback support (extensible)
+- Transaction-based migration execution
+- CLI-based migration management
+- TypeScript support
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Prerequisites
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/wudin2692/monitoring-hafalan.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/wudin2692/monitoring-hafalan/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- Node.js (v14 or higher)
+- PostgreSQL database
+- npm or yarn
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+1. Clone this repository:
+```bash
+git clone <repository-url>
+cd learn-migrate
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables by creating a `.env` file:
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/database_name
+
+# Or use individual variables:
+# DB_HOST=localhost
+# DB_PORT=5432
+# DB_USER=your_username
+# DB_PASSWORD=your_password
+# DB_NAME=your_database
+```
+
+## Project Structure
+
+```
+src/
+├── app.ts                 # Main application file
+├── migrate.ts            # Migration CLI script
+├── config/
+│   └── database.ts       # Database configuration
+├── utils/
+│   └── migrator.ts       # Migration utility class
+└── migrations/           # Migration files (auto-created)
+    ├── 001_create_users_table.sql
+    ├── 002_add_email_index.sql
+    └── ...
+```
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Starting the Server
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+The server will automatically run pending migrations on startup:
+
+```bash
+npm run dev
+```
+
+### Migration Commands
+
+#### Generate a New Migration
+
+```bash
+# Generate migration with descriptive name
+npm run migrate generate "create users table"
+npm run migrate g "add email index"
+```
+
+This creates a new migration file in the `src/migrations/` directory with the following template:
+
+```sql
+-- Migration: create users table
+-- Created at: 2024-01-20
+
+-- Write your migration SQL here
+-- Example:
+-- CREATE TABLE example_table (
+--   id SERIAL PRIMARY KEY,
+--   name VARCHAR(255) NOT NULL,
+--   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+```
+
+#### Run All Pending Migrations
+
+```bash
+npm run migrate up
+# or
+npm run migrate:up
+```
+
+#### Check Migration Status
+
+```bash
+npm run migrate status
+npm run migrate s
+# or
+npm run migrate:status
+```
+
+Output example:
+```
+Migration Status:
+==================
+Executed 001_create_users_table.sql
+Executed 002_add_email_index.sql
+Pending  003_create_posts_table.sql
+
+Total: 3 migrations, 1 pending
+```
+
+#### Rollback Migrations
+
+```bash
+# Rollback last migration
+npm run migrate rollback
+
+# Rollback specific migration
+npm run migrate rollback 003_create_posts_table.sql
+```
+
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server with auto-reload |
+| `npm run migrate` | Show migration commands help |
+| `npm run migrate:generate` | Generate new migration file |
+| `npm run migrate:up` | Run all pending migrations |
+| `npm run migrate:status` | Show migration status |
+| `npm run migrate:rollback` | Rollback migrations |
+
+## Migration File Naming Convention
+
+Migration files follow this naming pattern:
+```
+{number}_{description}.sql
+```
+
+Examples:
+- `001_create_users_table.sql`
+- `002_add_email_index.sql`
+- `003_create_posts_table.sql`
+
+## Example Migration Files
+
+### Create Users Table
+```sql
+-- Migration: create users table
+-- Created at: 2024-01-20
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_email ON users(email);
+```
+
+### Add Posts Table
+```sql
+-- Migration: create posts table
+-- Created at: 2024-01-21
+
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  content TEXT,
+  published BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_posts_user_id ON posts(user_id);
+CREATE INDEX idx_posts_published ON posts(published);
+```
+
+## Database Schema
+
+The migration system automatically creates a `migrations` table to track executed migrations:
+
+```sql
+CREATE TABLE migrations (
+  id SERIAL PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL UNIQUE,
+  executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Error Handling
+
+- **Transaction Safety**: Each migration runs within a database transaction
+- **Rollback on Error**: If a migration fails, the transaction is rolled back
+- **Error Logging**: Detailed error messages help debug migration issues
+- **Server Startup**: Server won't start if migrations fail
+
+## API Example
+
+The system includes example routes showing how to use the database:
+
+```typescript
+// GET /users - Fetch all users
+app.get('/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+```
+
+## Development Workflow
+
+1. **Create Migration**: `npm run migrate generate "description"`
+2. **Edit Migration**: Add your SQL in the generated file
+3. **Run Migration**: `npm run migrate up`
+4. **Check Status**: `npm run migrate status`
+5. **Test**: Start your server and test the changes
+
+## Best Practices
+
+### Migration Writing
+- Always use transactions for complex operations
+- Include rollback SQL in comments for manual rollbacks
+- Test migrations on a copy of production data
+- Keep migrations focused on a single change
+- Use descriptive names for migrations
+
+### Example with Rollback Comments
+```sql
+-- Migration: add user roles
+-- Rollback: DROP COLUMN role FROM users;
+
+ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'user';
+UPDATE users SET role = 'user' WHERE role IS NULL;
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Migration fails to execute:**
+```bash
+# Check database connection
+npm run migrate status
+```
+
+**Migration directory not found:**
+The system automatically creates the `src/migrations/` directory when needed.
+
+**Duplicate migration names:**
+Migration numbering is automatic and sequential to prevent conflicts.
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -am 'Add some feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit a pull request
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the ISC License - see the package.json file for details.
+
+## TODO / Future Enhancements
+
+- Implement complete rollback functionality
+- Add migration dependency management
+- Support for seed data
+- Migration history with timestamps
+- Backup before migrations
+- Support for multiple databases
+- GUI for migration management
+
+## Support
+
+If you encounter any issues or have questions, please create an issue in this repository.
